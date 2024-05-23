@@ -8,6 +8,9 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 public class Steps_ProductAPI {
@@ -18,10 +21,16 @@ public class Steps_ProductAPI {
     String searchParamFromTable;
 
     @When("I {string} all the Products")
-    public void makeACallToTheProductsAPI(String APIEndpoint){
+    public void makeACallToTheProductsAPI(String APIEndpoint) throws IOException {
         switch (APIEndpoint){
             case "get" -> responseFromAPI = RestAssured.get(configs.baseURL + "/productsList");
             case "update" -> responseFromAPI = RestAssured.post(configs.baseURL + "/productsList");
+            case "get_save" -> {
+                responseFromAPI = RestAssured.get(configs.baseURL + "/productsList");
+                FileWriter fileWriter = new FileWriter("./src/schemas/ProductAPI_Data.json");
+                fileWriter.write(responseFromAPI.body().print());
+                fileWriter.close();
+            }
             default -> throw new IllegalArgumentException("Incorrect API Endpoint : " + APIEndpoint);
         }
     }

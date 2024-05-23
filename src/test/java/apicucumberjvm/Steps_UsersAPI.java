@@ -8,6 +8,9 @@ import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 
 public class Steps_UsersAPI {
@@ -123,10 +126,13 @@ public class Steps_UsersAPI {
     }
 
     @And("I verify the user {string}")
-    public void verifyTheUser(String userAction){
+    public void verifyTheUser(String userAction) throws IOException {
         switch (userAction){
             case "update" -> {
                 responseFromAPI = RestAssured.get(configs.baseURL + "/getUserDetailByEmail?email="+generatedEmail);
+                FileWriter fileWriter = new FileWriter("./src/schemas/UserAPI_Data.json");
+                fileWriter.write(responseFromAPI.body().print());
+                fileWriter.close();
                 assertEquals(responseFromAPI.jsonPath().getString("user.country"),"India");
                 assertEquals(responseFromAPI.jsonPath().getString("responseCode"),"200");
             }
